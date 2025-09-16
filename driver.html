@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Driver - Bus Tracker (Improved)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 12px; }
+    button { margin: 6px 0; padding: 8px 12px; }
+    #status { margin-top: 8px; color: #333; }
+    .bad { color: #b00; }
+    .ok { color: #097; }
+  </style>
+</head>
+<body>
+  <h2>Driver — Share Location</h2>
+
+  <div>
+    <button id="startBtn">Start Sharing (ask permission)</button>
+    <button id="stopBtn" disabled>Stop Sharing</button>
+  </div>
+
+  <div id="status">Status: <span id="perm">unknown</span></div>
+  <div id="info">Last sent: <span id="last">none</span></div>
+  <div id="acc">Accuracy: <span id="accuracy">—</span></div>
+  <div id="hint" style="margin-top:8px;color:#555"></div>
+
+  <script>
+    const serverUrl = "INSERT URL HERE";
+
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const permEl = document.getElementById('perm');
+    const lastEl = document.getElementById('last');
+    const accEl = document.getElementById('accuracy');
+    const hintEl = document.getElementById('hint');
+
+    let watchId = null;
+
+    // Check permissions (if Permissions API available)
+    function checkPermission() {
+      if (!navigator.permissions) {
+        permEl.textContent = 'Permissions API not available';
+        return;
+      }
+      navigator.permissions.query({ name: 'geolocation' }).then(result => {
+        permEl.textContent = result.state;
+        result.onchange = () => permEl.textContent = result.state;
+      }).catch(() => {
+        permEl.textContent = 'unknown';
+      });
+    }
+    checkPermission();
+
+    function sendLocation(position) {
+      const payload = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+        accuracy: position.coords.accuracy,
+        timestamp: position.timestamp
+      };
+
+      // Display locally
+      lastEl.textContent = new Date(payload.timestamp).toLocaleTimeString();
+      accEl.textContent = payload.accuracy + ' m';
+
+      // Heuristic: large accuracy => coarse (IP) location
+      if (payload.accuracy > 200) {
+        hintEl.innerHTML = '<span class="bad">Low accuracy (&gt;200 m): likely IP/Wi-Fi based. Enable GPS / high-accuracy mode.</span>';
+      } else if (payload.accuracy > 50) {
+        hintEl.innerHTML = '<span class="ok">Moderate accuracy (' + payload.accuracy + ' m). May be mixed sources.</span>';
+      } else {
+        hintEl.innerHTML = '<span class="ok">Good accuracy (' + payload.accuracy + ' m) — likely GPS.</span>';
+      }
+
+      // send to server
+      fetch(serverUrl + '/location', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lat: payload.lat, lng: payload.lng })
+      }).then(() => {
+        console.log('Location sent', payload);
+      }).catch(err => {
+        console.error('Send error', err);
+      });
+    }
+
+    function handleError(err) {
+      console.log('Geolocation error', err);
+      if (err.code === 1) {
+        hintEl.innerHTML = '<span class="bad">Permission denied. Allow location in your browser settings for this site.</span>';
+      } else if (err.code === 2) {
+        hintEl.innerHTML = '<span class="bad">Position unavailable. Try enabling GPS / restart location services.</span>';
+      } else if (err.code === 3) {
+        hintEl.innerHTML = '<span class="bad">Timeout. Try increasing timeout or ensure GPS is enabled.</span>';
+      } else {
+        hintEl.innerHTML = '<span class="bad">Unknown error: ' + err.message + '</span>';
+      }
+    }
+
+    function startSharing() {
+      if (!navigator.geolocation) {
+        hintEl.innerHTML = '<span class="bad">Geolocation not supported by this browser.</span>';
+        return;
+      }
+
+      // getCurrentPosition first to trigger permission popup in some browsers
+      navigator.geolocation.getCurrentPosition(pos => {
+        // if this succeeds, start watchPosition for continuous updates
+        sendLocation(pos);
+        if (watchId === null) {
+          watchId = navigator.geolocation.watchPosition(sendLocation, handleError, {
+            enableHighAccuracy: true,
+            maximumAge: 0,
+            timeout: 10000
+          });
+          startBtn.disabled = true;
+          stopBtn.disabled = false;
+        }
+      }, err => {
+        handleError(err);
+      }, { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 });
+    }
+
+    function stopSharing() {
+      if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+        watchId = null;
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+        hintEl.textContent = 'Stopped sharing.';
+      }
+    }
+
+    startBtn.addEventListener('click', () => {
+      checkPermission();
+      startSharing();
+    });
+    stopBtn.addEventListener('click', stopSharing);
+
+    // Optional: poll permission state regularly
+    setInterval(checkPermission, 5000);
+  </script>
+</body>
+</html>

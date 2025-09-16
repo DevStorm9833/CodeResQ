@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>User - Bus Tracker (Improved)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; }
+    #map { width: 100%; height: 90vh; }
+    #info { padding: 8px; background: #f5f5f5; font-size: 14px; }
+    .bad { color: #b00; font-weight: bold; }
+    .ok { color: #097; font-weight: bold; }
+  </style>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+</head>
+<body>
+  <h3 style="margin:8px">User — Track Driver</h3>
+  <div id="map"></div>
+  <div id="info">
+    Status: <span id="status">Waiting for driver...</span><br/>
+    Accuracy: <span id="accuracy">—</span><br/>
+    Last update: <span id="last">—</span>
+  </div>
+
+  <script>
+    const serverUrl = "INSERT URL HERE";
+    const statusEl = document.getElementById('status');
+    const accEl = document.getElementById('accuracy');
+    const lastEl = document.getElementById('last');
+
+    // init map
+    const map = L.map('map').setView([28.6139, 77.2090], 13); // default Delhi
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    let driverMarker = null;
+
+    function updateDriver() {
+      fetch(serverUrl + "/location")
+        .then(res => res.json())
+        .then(data => {
+          if (!data.lat || !data.lng) {
+            statusEl.innerHTML = '<span class="bad">Driver has not shared location yet.</span>';
+            return;
+          }
+
+          const lat = data.lat;
+          const lng = data.lng;
+
+          if (!driverMarker) {
+            driverMarker = L.marker([lat, lng]).addTo(map).bindPopup("Driver");
+            map.setView([lat, lng], 15);
+          } else {
+            driverMarker.setLatLng([lat, lng]);
+          }
+
+          statusEl.innerHTML = '<span class="ok">Driver location received.</span>';
+          accEl.textContent = data.accuracy ? data.accuracy + " m" : "unknown";
+          lastEl.textContent = data.timestamp ? new Date(data.timestamp).toLocaleTimeString() : "unknown";
+
+          // hint based on accuracy
+          if (data.accuracy) {
+            if (data.accuracy > 200) {
+              accEl.innerHTML = data.accuracy + ' m <span class="bad">(Low accuracy — coarse/IP-based)</span>';
+            } else if (data.accuracy > 50) {
+              accEl.innerHTML = data.accuracy + ' m <span class="ok">(Moderate)</span>';
+            } else {
+              accEl.innerHTML = data.accuracy + ' m <span class="ok">(Precise GPS)</span>';
+            }
+          }
+        })
+        .catch(err => {
+          console.error("Fetch error", err);
+          statusEl.innerHTML = '<span class="bad">Error fetching location.</span>';
+        });
+    }
+
+    setInterval(updateDriver, 3000); // refresh every 3s
+  </script>
+</body>
+</html>
