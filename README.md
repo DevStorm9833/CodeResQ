@@ -1,4 +1,4 @@
-in ngrok method:
+In ngrok method:
 
 - run the server 
 - run the ngrok
@@ -7,7 +7,7 @@ in ngrok method:
 - paste it in phone of driver with /driver
 - paste it in user side with /user
 
-todo:
+Todo:
 - add min 3 buses functionaltiy 
 - add authentication part
 - ui betterment
