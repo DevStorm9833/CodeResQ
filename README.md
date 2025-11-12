@@ -10,19 +10,19 @@ Over 60% of commuters in small cities face delays due to lack of real-time infor
 
 Expected Outcomes:
 
-• A mobile app or web platform integrating GPS-based real-time tracking of buses.
-• Display estimated arrival times and route information.
-• Optimized for low-bandwidth environments to ensure accessibility in smaller towns.
+- A mobile app or web platform integrating GPS-based real-time tracking of buses.
+- Display estimated arrival times and route information.
+- Optimized for low-bandwidth environments to ensure accessibility in smaller towns.
 
 Relevant Stakeholders / Beneficiaries:
 
-• Commuters
-• Local transport authorities
-• Municipal corporations
+- Commuters
+- Local transport authorities
+- Municipal corporations
 
 Supporting Data:
 
-• Urban Mobility India Report 2024, emphasizing transport inefficiencies in tier-2 cities.
+- Urban Mobility India Report 2024, emphasizing transport inefficiencies in tier-2 cities.
 
 ---
 
