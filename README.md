@@ -41,4 +41,4 @@ Todo:
 
 
 # Useful SIH Repos
-- [2](https://github.com/rudrakshi99/SIH2022)
+- [SIH2022](https://github.com/rudrakshi99/SIH2022)
