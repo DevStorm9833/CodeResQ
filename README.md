@@ -42,3 +42,4 @@ Todo:
 
 # Useful SIH Repos
 - [SIH2022](https://github.com/rudrakshi99/SIH2022)
+- [SIH2018](https://github.com/Ronak-59/Helping-Hands-SIH2018)
