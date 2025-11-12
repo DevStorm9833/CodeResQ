@@ -26,6 +26,8 @@ Over 60% of commuters in small cities face delays due to lack of real-time infor
 
 ---
 
+# 🎯 Progress
+
 In ngrok method:
 - run the server 
 - run the ngrok
@@ -40,6 +42,6 @@ Todo:
 - ui betterment
 
 
-# Useful SIH Repos
+# 🔗 Useful SIH Repos
 - [SIH2022](https://github.com/rudrakshi99/SIH2022)
 - [SIH2018](https://github.com/Ronak-59/Helping-Hands-SIH2018)
