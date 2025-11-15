@@ -41,7 +41,9 @@ Todo:
 - add authentication part
 - ui betterment
 
-Shortlisted Teams : ![7 Teams]()
+Shortlisted Teams: 
+
+![7 Teams](assets/docs/Teams.png)
 
 ---
 
