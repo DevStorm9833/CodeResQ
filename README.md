@@ -41,6 +41,9 @@ Todo:
 - add authentication part
 - ui betterment
 
+# Shortlisted Teams
+![Teams]()
+
 ---
 
 # 🔗 Useful SIH Repos
