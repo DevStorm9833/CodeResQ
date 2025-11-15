@@ -41,7 +41,7 @@ Todo:
 - add authentication part
 - ui betterment
 
-# Shortlisted Teams : 7
+Shortlisted Teams : ![7 Teams]()
 
 ---
 
